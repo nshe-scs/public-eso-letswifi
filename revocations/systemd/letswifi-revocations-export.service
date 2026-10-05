@@ -1,0 +1,18 @@
+# Portal host: publish per-realm revocation deny-lists for the FreeRADIUS hosts to pull
+[Unit]
+Description=Publish eso-letswifi revocation deny-lists
+Documentation=file:///app/library/eso-letswifi/revocations/README.md
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /app/library/eso-letswifi/revocations/export-revocations.py \
+    --source /app/library/eso-letswifi/vols/letswifi-var/letswifi.sqlite \
+    --realms-dir /app/library/eso-letswifi/vols/letswifi-config/realms \
+    --publish-dir /app/library/eso-letswifi/vols/revocations
+TimeoutStartSec=5min
+# Least privilege: everything read-only except the publish directory
+ProtectSystem=strict
+ReadWritePaths=/app/library/eso-letswifi/vols/revocations
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes

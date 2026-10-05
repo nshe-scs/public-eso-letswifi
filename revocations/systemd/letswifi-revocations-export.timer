@@ -1,0 +1,11 @@
+# Portal host: republish every 10 minutes, the heartbeat fetchers use to detect a stalled exporter
+[Unit]
+Description=Republish eso-letswifi revocations every 10 minutes
+
+[Timer]
+OnBootSec=2min
+OnCalendar=*:0/10
+Unit=letswifi-revocations-export.service
+
+[Install]
+WantedBy=timers.target

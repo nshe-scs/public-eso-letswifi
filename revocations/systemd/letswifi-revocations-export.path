@@ -1,0 +1,10 @@
+# Portal host: publish as soon as the portal database changes
+[Unit]
+Description=Publish eso-letswifi revocations when the portal database changes
+
+[Path]
+PathChanged=/app/library/eso-letswifi/vols/letswifi-var/letswifi.sqlite
+Unit=letswifi-revocations-export.service
+
+[Install]
+WantedBy=paths.target

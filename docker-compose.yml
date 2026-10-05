@@ -1,0 +1,36 @@
+# Let's Wi-Fi portal for eduroam onboarding (EAP-TLS). See README.md.
+# Be sure to create custom.env from custom.env.example first!
+
+services:
+  eso-letswifi:
+    container_name: eso-letswifi
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: localhost/eso-letswifi:latest
+    hostname: eso-letswifi
+    ports:
+      - "${LETSWIFI_PUBLIC_IP:?Set LETSWIFI_PUBLIC_IP in custom.env}:443:8443"
+    environment:
+      # Image defaults show PHP errors to visitors; turn that off
+      DISPLAY_ERRORS: 'OFF'
+      SESSION_COOKIE_SECURE: '1'
+      SESSION_COOKIE_HTTPONLY: '1'
+    # Site settings, ACME credentials and revocation clients; see custom.env.example
+    env_file: ./custom.env
+    volumes:
+      # Directories must exist and be owned by UID 1001 (see README)
+      - './vols/letswifi-config/:/opt/app-root/letswifi/config:Z'
+      - './vols/letswifi-var/:/opt/app-root/letswifi/var:Z'
+      - './vols/ssp-config/:/opt/app-root/letswifi/simplesamlphp/config:Z'
+      - './vols/md/:/opt/app-root/md:Z'
+      # Revocation deny-lists written by revocations/export-revocations.py on the host
+      - './vols/revocations/:/opt/app-root/revocations:Z,ro'
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "curl", "-fsk", "-o", "/dev/null", "https://127.0.0.1:8443/assets/letswifi.css"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+    # Use "no" while testing to avoid a restart loop
+    restart: always
